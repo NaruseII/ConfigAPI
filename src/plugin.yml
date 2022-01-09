@@ -1,4 +1,4 @@
 name: NaruseAPI
-version: 1.0.0
+version: 1.0.1
 author: Naruse
-main: fr.naruse.api.bukkit.NaruseAPIPlugin
+main: fr.naruse.bukkit.NaruseAPIPlugin
