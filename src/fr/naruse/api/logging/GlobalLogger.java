@@ -4,9 +4,7 @@ import com.diogonunes.jcolor.Ansi;
 import com.diogonunes.jcolor.Attribute;
 import fr.naruse.api.config.Configuration;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.time.Instant;
 import java.util.*;
 import java.util.logging.Level;
@@ -20,6 +18,9 @@ public class GlobalLogger {
     private static CustomLogger customLogger;
     private static final Color colors = new Color(Attribute.NONE(), Attribute.YELLOW_TEXT(), Attribute.RED_TEXT(), Attribute.BRIGHT_GREEN_TEXT());
     private static java.util.logging.Logger PLUGIN_LOGGER;
+
+    private static final PrintStream previousStream = System.err;
+    private static PrintStream catcherStream = null;
 
     public static void setCustomLogger(CustomLogger customLogger) {
         GlobalLogger.customLogger = customLogger;
@@ -229,6 +230,30 @@ public class GlobalLogger {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void catchErrors(){
+        catcherStream = new PrintStream(new OutputStream() {
+
+            private final StringBuilder line = new StringBuilder();
+
+            @Override
+            public void write(int b) throws IOException {
+                if (b == '\n') {
+                    String s = line.toString();
+                    line.setLength(0);
+
+                    System.setErr(previousStream);
+                    GlobalLogger.error(s);
+                    System.setErr(catcherStream);
+                } else if (b != '\r') {
+                    line.append((char) b);
+                }
+            }
+        });
+        System.setErr(catcherStream);
+
+
     }
 
     private static String color(Level level, String s){
